@@ -1,5 +1,6 @@
 <?php
 session_start();    // ADMIN SIDE
+
 ?>
     
 
@@ -27,16 +28,12 @@ table,td {
        include 'db_connect.php';
        include 'navbar_admin.php';
 
-         /*** prepare the select statement ***/
-        $stmt = $dbh->prepare("SELECT c.CandidateID,c.ElectionID,u.FirstName,u.LastName FROM candidates c join users u on (c.CandidateID = u.StudentID)");
-        
-        /*** execute the prepared statement ***/
+        /*** prepare the select statement ***/
+        $stmt = $dbh->prepare("SELECT c.CandidateID,c.ElectionID,c.Approve,u.FirstName,u.LastName FROM candidates c join users u on (c.CandidateID = u.StudentID)");
         $stmt->execute();
-    
-        /*** check for a result ***/
         $result = $stmt->fetchAll();
-
         $temp = 2014;
+       
      }
       
     catch(Exception $e)
@@ -60,14 +57,14 @@ table,td {
                     <th>Candidate ID</th>
                       <th>First Name</th>
                       <th>Last Name</th>
-                      <th>Year</th>
+                      <th>Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
 
                   <?php
-           
+
                    foreach ($result as $row)
                     {
                             echo '<tr>';
@@ -78,10 +75,11 @@ table,td {
                             echo '<td>'. $temp . '</td>';
 
                             echo '<td width=250>';
+                            
                             echo '<a class="btn btn-success" href="approve_candidate.php?id='.$row['CandidateID'].'">Approve</a>';
                             echo ' ';
                             echo '<a class="btn btn-danger" href="delete_candidate.php?id='.$row['CandidateID'].'">Reject</a>';
-
+                           
                      }
 
 ?>

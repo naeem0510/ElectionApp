@@ -1,6 +1,8 @@
 <?php
 session_start();
 $sid = $_SESSION['userid'];
+$admin = $_SESSION['admin'];
+$date1 = date("Y-m-d");
 
 ?>
 
@@ -9,8 +11,17 @@ $sid = $_SESSION['userid'];
     try
     {
         
-      include 'db_connect.php';  
-      include 'navbar_users.php';
+      include 'db_connect.php'; 
+
+      if(!$admin)
+      {
+       include 'navbar_users.php';
+      }
+
+      else
+      {
+        include 'navbar_admin.php';
+      }
 
       $stmt4 = $dbh->prepare("SELECT voted1,voted2,voted3,voted4 FROM users WHERE StudentID = '$sid'");
       $stmt4->execute();
@@ -29,9 +40,6 @@ $sid = $_SESSION['userid'];
           $stmt = $dbh->prepare("SELECT * FROM elections");           
           $stmt->execute();
           $result = $stmt->fetchAll();
-
-          $date=date_create("2014-11-06");
-          date_add($date,date_interval_create_from_date_string("15 days"));
     	}
 
 	catch(Exception $e)
@@ -68,10 +76,15 @@ $sid = $_SESSION['userid'];
              <h3> Please Choose Election to Vote </h3> 
             </div>
             <div class="row">
+
+             <p>
+                  <?php if($admin) {echo '<a href="election_create.php" class="btn btn-info">Create</a>';}?>
+                </p>
+
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th>Election ID</th>
+                      <th>Election Name</th>
                       <th>Election Type</th>
                       <th>Date</th>
                       <th>Vote Now</th>
@@ -85,7 +98,7 @@ $sid = $_SESSION['userid'];
                             echo '<tr>';
                             echo '<td>'. $row['ElectionID'] . '</td>';                         
                             echo '<td>'. $row['Type'] . '</td>';
-                            echo '<td>'. date_format($date,"d-m-Y") . '</td>';
+                            echo '<td>'. $row['Date'] . '</td>';
                         
                         echo '<td>';  
 
@@ -94,11 +107,22 @@ $sid = $_SESSION['userid'];
 
                       if($row['ElectionID'] == 'UCD1')
                       {
-                        if($vote1) 
-                        {                          
+                        if($vote1 || $admin) 
+                        {     
+                          echo 'Thanks for your Valuable Vote';                     
                   //       echo '<a class="btn btn-default" href="#" btn-lg disabled" role="button" onClick = "myFunction()">Vote Now!</a>';
                         }
 
+                          elseif ($row['Date'] < $date1)
+                        {
+                          echo 'Election Over';
+                        }
+
+                         elseif ($row['Date'] > $date1)
+                        {
+                          echo 'Election Not Yet Active';
+                        }
+                       
                         else
                         {
                           echo '<a class="btn btn-success" href="voting_page.php?id='.$row['ElectionID'].'">Vote Now !</a>';
@@ -107,10 +131,21 @@ $sid = $_SESSION['userid'];
 
                       if($row['ElectionID'] == 'UCD2')
                       {
-                        if($vote2) 
-                        {                          
+                        if($vote2 || $admin) 
+                        {  
+                           echo 'Thanks for your Valuable Vote';                        
                    //      echo '<a class="btn btn-default" href="#" btn-lg disabled" role="button" onClick = "myFunction()">Vote Now!</a>';
                         }
+                         elseif ($row['Date'] < $date1)
+                        {
+                          echo 'Election Over';
+                        }
+
+                         elseif ($row['Date'] > $date1)
+                        {
+                          echo 'Election Not Yet Active';
+                        }
+                       
                         else
                         {
                           echo '<a class="btn btn-success" href="voting_page.php?id='.$row['ElectionID'].'">Vote Now !</a>';
@@ -119,11 +154,22 @@ $sid = $_SESSION['userid'];
 
                     if($row['ElectionID'] == 'UCD3')
                     {
-                      if($vote3) 
-                      {                          
+                      if($vote3 || $admin) 
+                      {             
+                         echo 'Thanks for your Valuable Vote';             
                  //      echo '<a class="btn btn-default" href="#" btn-lg disabled" role="button" onClick = "myFunction()">Vote Now!</a>';
                       }
 
+                         elseif ($row['Date'] < $date1)
+                        {
+                          echo 'Election Over';
+                        }
+
+                         elseif ($row['Date'] > $date1)
+                        {
+                          echo 'Election Not Yet Active';
+                        }
+                       
                       else
                         {
                           echo '<a class="btn btn-success" href="voting_page.php?id='.$row['ElectionID'].'">Vote Now !</a>';
@@ -132,10 +178,23 @@ $sid = $_SESSION['userid'];
 
                       if($row['ElectionID'] == 'UCD4')
                       {
-                      if($vote4) 
-                      {                          
+                      if($vote4 || $admin) 
+                      {  
+                         echo 'Thanks for your Valuable Vote';                        
                  //      echo '<a class="btn btn-default" href="#" btn-lg disabled" role="button" onClick = "myFunction()">Vote Now!</a>';
                       }
+
+                       elseif ($row['Date'] < $date1)
+                        {
+                          echo 'Election Over';
+                        }
+
+                         elseif ($row['Date'] > $date1)
+                        {
+                          echo 'Election Not Yet Active';
+                        }
+                       
+
                       else
                         {
                           echo '<a class="btn btn-success" href="voting_page.php?id='.$row['ElectionID'].'">Vote Now !</a>';
@@ -144,13 +203,6 @@ $sid = $_SESSION['userid'];
 
                       echo '</td>';
 
-
-
-
-
-
-
-
 // echo '<a class="btn btn-success" href="voting_page.php?id='.$row['ElectionID'].'">Vote Now !</a>';
           }
 ?>
@@ -158,7 +210,8 @@ $sid = $_SESSION['userid'];
             </table>
         </div>
     </div> <!-- /container -->
-<marquee behavior="alternate"> Elections will go offline at 5 PM. Please Vote as soon as possible </marquee>
+
+<marquee behavior="alternate"><mark> Elections will go offline at 11:59 PM on resptected dates. Make Sure You Vote before Time </mark></marquee>
 <script>
 function myFunction() {
     alert("Oops ! You have already voted for this Election");

@@ -3,26 +3,42 @@
 session_start();
 
 /*** check that both the username, password have been submitted ***/
-if(!isset( $_POST['studentid'], $_POST['password2']))
+if(!isset( $_POST['studentid'], $_POST['password2'],$_POST['email']))
 {
-    $message = 'Please enter a valid studentid and password';
+    $message = 'Please enter a valid studentid, password or email';
+    $_SESSION['message'] = $message;
+    header('Location:login.php');
 }
 
  /*** check the username is the correct length ***/
- elseif (strlen( $_POST['studentid']) > 20 || strlen($_POST['studentid']) < 4)
+ elseif (strlen( $_POST['studentid']) > 20 || strlen($_POST['studentid']) < 5)
  {
      $message = 'Incorrect Length for studentid';
+     $_SESSION['message'] = $message;
+    header('Location:login.php');
  }
 /*** check the password is the correct length ***/
- elseif (strlen( $_POST['password2']) > 8 || strlen($_POST['password2']) < 4)
+ elseif (strlen( $_POST['password2']) > 10 || strlen($_POST['password2']) < 6)
 {
     $message = 'Incorrect Length for Password';
+    $_SESSION['message'] = $message;
+    header('Location:login.php');
+   
  }
  //** check the username has only alpha numeric characters **
  elseif (ctype_alnum($_POST['studentid']) != true)
 {
      /*** if there is no match ***/
      $message = "studentid must be alpha numeric";
+     $_SESSION['message'] = $message;
+    header('Location:login.php');
+ }
+
+ elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
+ {
+    $message = "Enter valid email";
+     $_SESSION['message'] = $message;
+    header('Location:login.php');
  }
 
 
@@ -32,17 +48,18 @@ if(!isset( $_POST['studentid'], $_POST['password2']))
 // //         /*** if there is no match ***/
 //          $message = "Password must be alpha numeric";
 //  }
-else
-{
+
     /*** if we are here the data is valid and we can insert it into database ***/
+    
     $studentid = filter_var($_POST['studentid'], FILTER_SANITIZE_STRING);
     $password = filter_var($_POST['password2'], FILTER_SANITIZE_STRING);
+    $email = $_POST['email'];
 
   try
     {
     	include 'db_connect.php';
        
-        $stmt = $dbh->prepare("SELECT StudentID,password,FirstName,LastName,admin,registered,voted FROM users 
+        $stmt = $dbh->prepare("SELECT StudentID,password,FirstName,LastName,admin,registered FROM users 
                    				 WHERE StudentID = :studentid AND password = :password2");
 
         /*** bind the parameters ***/
@@ -61,15 +78,11 @@ else
      	 $_SESSION['userid'] = $studentid;
      	 $_SESSION['password'] = $password;
 
-
-	    /*** now we can encrypt the password ***/
-	   // $password = sha1( $password );
-      
         /*** if we have no result then fail both ***/
         if($studentid == false)
         {
                 $message = 'Sorry ! You are not a valid User';
-               	header('Location:form.php');       
+               	header('Location:login.php');       
         }
         /*** if we do have a result, all is well ***/
         else
@@ -77,14 +90,17 @@ else
             	
             	if($registered)
 	              	{
-	              		header('Location:form.php');
+	              		header('Location:login.php');
 	             	}
 
                 else
                 {
+                    $stmt1 = $dbh->prepare("UPDATE users SET email='$email' WHERE StudentID = '$studentid'");
+                    $stmt1->execute();
                     $_SESSION['userid'] = $studentid;
                     $_SESSION['userfn'] = $fname;
                     $_SESSION['userln'] = $lname;  
+                    $_SESSION['admin'] = $admin;  
 
                     /*** tell the user we are logged in ***/
                     $message = 'You are now logged in';
@@ -102,8 +118,6 @@ else
         echo $e;
     }
     
-}
-
 ?>
 
 

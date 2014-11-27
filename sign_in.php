@@ -15,8 +15,7 @@
         </div>
         <center>
             <div class="navbar-collapse collapse" id="navbar-main">
-                <ul class="nav navbar-nav">
-                    
+                <ul class="nav navbar-nav">         
                    
                 </ul>
                 <form class="navbar-form navbar-right" method="post" action="userlogin.php" autocomplete="off">
@@ -27,7 +26,7 @@
                         <input type="password" class="form-control" name="password2" placeholder="Password">
                     </div>
                    
-                    <button type="submit" class="btn btn-danger">Login</button>
+                    <button type="submit" class="btn btn-danger"> Login </button>&nbsp;&nbsp;<span style = "font-size:15px; color:white"><u> Exisitng Users </u></span>
                 
                 </form>
             </div>

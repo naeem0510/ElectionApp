@@ -47,7 +47,7 @@ body {
     border-bottom-right-radius: 0;
     border-top-style: solid;
     border-right-style: solid;
-    border-bottom-style: none;
+    border-bottom-style: solid;
     border-left-style: solid;
     border-color: #000;
   }
@@ -55,12 +55,12 @@ body {
     margin-bottom: 10px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    border-top-style: none;
+    border-top-style: solid;
     border-right-style: solid;
     border-bottom-style: solid;
     border-left-style: solid;
     border-color: rgb(0,0,0);
-    border-top:1px solid rgba(0,0,0,0.08);
+    
   }
   .form-signin-heading {
     color: #000000;

@@ -1,13 +1,11 @@
 <?php
 session_start();
-//$admin = $_SESSION['admin'];
-$user = $_SESSION['userid'];
-$admin = $_SESSION['admin'];
-?>
 
+if(isset($_SESSION['userid']))
+{
+  $user = $_SESSION['userid'];
+  $admin = $_SESSION['admin'];
 
-<?php
-    
     try
     {
         include 'db_connect.php';
@@ -26,25 +24,24 @@ $admin = $_SESSION['admin'];
   /*** prepare the select statement ***/
        
           $stmt = $dbh->prepare("SELECT * FROM elections");
-          $stmt1 = $dbh->prepare("SELECT Nominate FROM candidates WHERE CandidateID = '$user'");
-             
-      
           $stmt->execute();
-          $stmt1->execute();
-          $result = $stmt->fetchAll();
-          $nominated = $stmt1->fetchAll();
+          $result = $stmt->fetchAll();          
 
-          $date=date_create("2014-11-06");
+          $stmt1 = $dbh->prepare("SELECT Nominate FROM candidates WHERE CandidateID = '$user'");
+          $stmt1->execute();   
+          $nominated = $stmt1->fetchColumn();
+
+          $date=date_create("2014-11-10");
           date_add($date,date_interval_create_from_date_string("9 days"));
     	}
 
-	catch(Exception $e)
-	{
-		$message = 'error!!!';
-	}
-
-//  echo date("d-m-Y");
-//
+  	catch(Exception $e)
+  	{
+  		$message = 'Error! Something Wrong happened';
+      echo $message;
+      header('refresh:2;url=userhome.php');
+  	}
+}
   ?>
 
 <!DOCTYPE html>
@@ -69,10 +66,7 @@ $admin = $_SESSION['admin'];
 <body>
 
 <div style = "float:right">
-<?php  echo date("d-m-Y"). "<br>";
-        echo date("h:i:sa")."<br>";
-        echo date("l")."<br>";
- ?>
+
 </div>
 
 <div class="container">
@@ -108,7 +102,7 @@ $admin = $_SESSION['admin'];
                       }
                       else
                       {
-                        echo '<a class="btn btn-default" href="#" btn-lg disabled" role="button" onClick = "myFunction()">Nominate</a>';
+                        echo 'Already Nominated';
                       }
 
           }
@@ -118,12 +112,7 @@ $admin = $_SESSION['admin'];
         </div>
     </div> <!-- /container -->
 
-<script>
-function myFunction() {
-    alert("Oops ! You have already nominated yourself for one of the Elections");
-}
-</script>
 
-<marquee behavior="alternate"> Nominations will close on 15th of November at 5 PM  </marquee>
+<marquee behavior="alternate"><mark> Nominations will close on 15th of November at 11:59 PM </mark></marquee>
 </body>
 </html>

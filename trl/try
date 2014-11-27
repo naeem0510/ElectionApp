@@ -1,0 +1,26 @@
+ <?php
+ 
+ <script>
+   jQuery("img").each(function() {
+	var img = this;
+	// Get faces cooridnates
+	var coordinates = jQuery(img).faceDetection();
+	// Make boxes if faces are found
+	if(coordinates.length) {
+		coordinates.forEach(function(coord) {
+			jQuery("<div>", {
+				css: {
+					position: "absolute",
+					left: coord.positionX + 5 + "px",
+					top: coord.positionY + 5 + "px",
+					width: coord.width + "px",
+					height: coord.height + "px",
+					border: "3px solid white"
+				}
+			}).appendTo(img.parentNode);
+		});
+	}
+});
+ </script>
+
+?>

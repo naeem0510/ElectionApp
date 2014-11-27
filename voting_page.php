@@ -1,31 +1,102 @@
 <?php
 session_start();
-$eid = $_REQUEST['id'];
-$sid = $_SESSION['userid'];
-$_SESSION['eid'] = $eid;
 
-
-include 'db_connect.php';
-
-$stmt = $dbh->prepare("SELECT Approve FROM candidates WHERE CandidateID = '$sid'");
-$stmt->execute();
-$approve = $stmt->fetchColumn();
-
-if($approve)
+if(isset($_SESSION['userid']))
 {
-  $stmt1 = $dbh->prepare("SELECT c.CandidateID,c.ElectionID,u.FirstName,u.LastName FROM candidates c join users u on (c.CandidateID = u.StudentID) WHERE ElectionID = '$eid'" );
-  $stmt1->execute();
-  $result = $stmt1->fetchAll();
+    $eid = $_REQUEST['id'];
+    $sid = $_SESSION['userid'];
+    $_SESSION['eid'] = $eid;
+
+    include 'db_connect.php';
+
+    try
+    {
+      $stmt3 = $dbh->prepare("SELECT otpsent from users WHERE StudentID = '$sid'");
+      $stmt3->execute();
+      $sent = $stmt3->fetchColumn();
+
+      $stmt5 = $dbh->prepare("SELECT voted1,voted2,voted3,voted4 from users WHERE StudentID = '$sid'");
+      $stmt5->execute();
+      $request = $stmt3->fetchAll();
+
+      if(sizeof($request != 0))
+      {
+        foreach ($request as $value) 
+        {
+       
+          $voted1 = $value['voted1'];
+          $voted2 = $value['voted2'];
+          $voted3 = $value['voted3'];
+          $voted4 = $value['voted4'];
+        }
+      }
+
+      if(!$sent)
+      {
+          // Function to Generate a Random Password
+          function generate_password( $length = 8 ) 
+          {
+            $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$&";
+            $password = substr( str_shuffle( $chars ), 0, $length );
+            return $password;
+          }
+
+
+          $otp = generate_password();
+          $QRcodevalue= $otp;
+      
+          $query = $dbh->prepare("UPDATE users SET OTP = '$otp' WHERE StudentID = '$sid'");
+          $query->execute();
+
+          $query1 = $dbh->prepare("SELECT email from users WHERE StudentID = '$sid'");
+          $query1->execute();
+          $email = $query1->fetchColumn();
+
+          //Sending mail
+          $from = 'armaankhan0510@gmail.com';
+          $to = $email;
+          $subject = 'One Time Password for Voting';
+
+          $message = 'Your One Time Password : '.$otp;
+      //    $message = 'Your One Time Password : '.$otp;
+          $headers = 'From: '.$from. "\r\n" .
+          'Reply-To: '.$from. "\r\n";
+
+          $fullmessage = "<img src='https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=".$QRcodevalue."&choe=UTF-8&chld=M|1' /> <br/>";
+           
+          $fullmessage .= $message;
+
+          if(mail($to, $subject, $fullmessage, $headers))
+          {
+        
+            $stmt4 = $dbh->prepare("UPDATE users SET otpsent = '1' WHERE StudentID = '$sid'");
+            $stmt4->execute();
+            echo 'Success';
+          }
+
+          else
+          {
+            echo 'Failed';
+          }
+      }
+
+      
+      $stmt1 = $dbh->prepare("SELECT c.CandidateID,c.ElectionID,u.FirstName,u.LastName FROM candidates c join users u on (c.CandidateID = u.StudentID) WHERE ElectionID = '$eid' AND Approve = '1'" );
+      $stmt1->execute();
+      $result1 = $stmt1->fetchAll();
+    }
+
+    catch(Exception $e)
+        {
+          echo $e;
+        }
+
 }
 
-$stmt2 = $dbh->prepare("SELECT voted FROM users WHERE StudentID = '$sid'");
-$stmt2->execute();
-$voted = $stmt2->fetchAll();
-
-
-$stmt3 = $dbh->prepare("SELECT image FROM images WHERE id = '1'");
-$stmt3->execute();
-$img = $stmt3->fetchAll();
+else
+{
+  header('Location:login.php');
+}
 
 ?>
 
@@ -71,26 +142,30 @@ include 'navbar_home.php';
                   <tbody>
 
                   <?php
-           
-                    if($approve)
+      
+                    if(sizeof($result1 != 0))  
                     {
-                     foreach ($result as $row)            //'<img src="Assets/profile/2.jpg" class="img-circle">'
-                      {
+                        foreach ($result1 as $row)            //'<img src="Assets/profile/2.jpg" class="img-circle">'
+                          {
                               echo '<tr>';
-                              echo '<td>'.'<img src="Assets/profile/2.jpg" class="img-circle" style = "width:60px;height:60px;">'.'</td>';
+                              echo '<td>'.'<img src="Assets/profile/'.$row['CandidateID'].'.jpg" class="img-circle" style = "width:60px;height:60px;">'.'</td>';
                               echo '<td>'. $row['FirstName'] . '</td>';
                               echo '<td>'. $row['LastName'] . '</td>';
-                              echo '<td>'. $row['CandidateID'] . '</td>';                         
+                              echo '<td>'. $row['CandidateID'] . '</td>';                       
                               
                               echo '<td width=250>';
                               echo '<a class="btn btn-info" href="profile.php?">View Profile</a>';
-                              echo ' ';
+                              echo ' ';    
                            
-                              echo '<a class="btn btn-primary" href="vote_finished.php?id='.$row['CandidateID'].'">Vote</a>';       
-                 
-                       }
-                   }
+                              echo '<a class="btn btn-primary" href="otp.php?id='.$row['CandidateID'].'">Vote</a>';     
+                           }
+                      }
 
+                    else
+                     {          
+                        echo '<p> Sorry No Candiate Appeared for this Election </p>';
+                      }          
+                  
 ?>
 
                   </tbody>

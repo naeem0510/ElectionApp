@@ -1,35 +1,34 @@
 <?php
 session_start();
 
+if(isset($_SESSIOM['userid']))
+{
+
 $name = $_REQUEST['id'];
 
-$mysql_hostname = 'localhost';
-
-    /*** mysql username ***/
-    $mysql_username = 'naeem';
-
-    /*** mysql password ***/
-    $mysql_password = 'admin';
-
-    /*** database name ***/
-    $mysql_dbname = 'electionapp';
 
     try
     {
-        $dbh = new PDO("mysql:host=$mysql_hostname;dbname=$mysql_dbname", $mysql_username, $mysql_password);
-        /*** $message = a message saying we have connected ***/
-
-        /*** set the error mode to excptions ***/
-        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
- 
+        include 'db_connect.php';
+       
   /*** prepare the update statement ***/
+
         $stmt = $dbh->prepare("UPDATE candidates SET Approve='1' WHERE CandidateID = '$name'");
         $stmt->execute();
+
+        $stmt1 = $dbh->prepare("INSERT INTO result (ElectionID,CandidateID) SELECT ElectionID,CandidateID FROM candidates WHERE CandidateID = '$name'");
+        $stmt1->execute();
     }   
 	catch(Exception $e)
 	{
 		$message = 'error!!!';
 	}
+}
+
+else
+{
+    header('Location:admin.php');
+}
 //
 ?>
 <html>

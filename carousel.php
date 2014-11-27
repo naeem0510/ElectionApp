@@ -20,22 +20,22 @@
                     <div class="item active">
                         <img src="http://placehold.it/1200x500/3498db/2980b9" alt="First slide">
                         <div class="carousel-caption">
-                            <h3>
-                                Naeem Mansoori</h3>
+                            <h3>Manaswi Gollapudi
+                                </h3>
                         </div>
                     </div>
                     <div class="item">
                         <img src="http://placehold.it/1200x500/9b59b6/8e44ad" alt="Second slide">
                         <div class="carousel-caption">
                             <h3>
-                                Second slide</h3>
+                                Sudharsan Rajshekharan</h3>
                         </div>
                     </div>
                     <div class="item">
                         <img src="http://placehold.it/1200x500/34495e/2c3e50" alt="Third slide">
                         <div class="carousel-caption">
                             <h3>
-                                Third slide</h3>
+                                Naeem Mansoori</h3>
                             
                         </div>
                     </div>

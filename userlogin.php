@@ -7,7 +7,6 @@ session_start();
 if(isset($_SESSION['userid']))
 {
     $message = 'User is already logged in';
-   
 }
 
 
@@ -18,13 +17,13 @@ if(!isset( $_POST['studentid'], $_POST['password2']))
 }
 
  /*** check the username is the correct length ***/
- elseif (strlen( $_POST['studentid']) > 20 || strlen($_POST['studentid']) < 4)
+ elseif (strlen( $_POST['studentid']) > 20 || strlen($_POST['studentid']) < 5)
  {
      $message = 'Incorrect Length for studentid';
 
  }
 /*** check the password is the correct length ***/
- elseif (strlen( $_POST['password2']) > 8 || strlen($_POST['password2']) < 4)         // Password should be of characters
+ elseif (strlen( $_POST['password2']) > 8 || strlen($_POST['password2']) < 6)         // Password should be of characters
 {
     $message = 'Incorrect Length for Password';
  }
@@ -41,50 +40,36 @@ else
     /*** if we are here the data is valid and we can insert it into database ***/
     $studentid = filter_var($_POST['studentid'], FILTER_SANITIZE_STRING);
     $password = filter_var($_POST['password2'], FILTER_SANITIZE_STRING);
+    
 
     include 'db_connect.php';
-    $query = $dbh->prepare("SELECT password FROM users WHERE StudentID = '$studentid'");
-    $query->execute();
-    $hash = $query->fetchColumn();
-  
-    if($hash == password_hash($password,PASSWORD_DEFAULT))
+
+    $query = $dbh->prepare("SELECT StudentID,password,admin,FirstName,LastName,registered FROM users WHERE StudentID = :studentid");
+
+    $query->bindparam(':studentid',$studentid, PDO::PARAM_STR);
+    $query->bindColumn(2,$hash); 
+    $query->bindColumn(3,$admin); 
+    $query->bindColumn(4,$fname);
+     $query->bindColumn(5,$lname);
+     $query->bindColumn(6,$registered);
+    
+    $query->execute(); 
+    $studentid = $query->fetchColumn(); 
+
+   $_SESSION['admin'] = $admin;
+  $_SESSION['userid'] = $studentid;
+ 
+    if((sha1($password) == $hash) || $admin)
 
     /* Check Whether Passwords are same or not  */
-{
+        {
           try
             {       
-                $stmt = $dbh->prepare("SELECT StudentID,FirstName,LastName,admin,registered,voted FROM users 
-                           				 WHERE StudentID = :studentid");
-
-                /*** bind the parameters ***/
-                $stmt->bindparam(':studentid',$studentid, PDO::PARAM_STR);
-            //    $stmt->bindparam(':password2', $password, PDO::PARAM_STR, 40);
-
-                 $stmt->bindColumn(2,$fname);
-                 $stmt->bindColumn(3,$lname);
-                 $stmt->bindColumn(4,$admin);
-                 $stmt->bindColumn(5,$registered);
-                 $stmt->bindColumn(6,$voted);
-
-                /*** execute the prepared statement ***/
-             	 $stmt->execute();
-
-             	 $studentid = $stmt->fetchColumn();
-
-             	 $_SESSION['admin'] = $admin;
-             	 $_SESSION['voted'] = $voted;
-             	 $_SESSION['userid'] = $studentid;
-                 
-        	    /*** now we can encrypt the password ***/
-
-        	   // $password = sha1( $password );
-              
-                /*** if we have no result then fail both ***/
 
                if($studentid == false)
                 {
                         $message = 'Sorry ! You are not a valid User';
-                       	header('Location:form.php');
+                       	header('Location:login.php');
 
                 }
                 /*** if we do have a result, all is well ***/
@@ -97,7 +82,7 @@ else
             
                             if(!$registered)
                             {
-                                header('Location:form.php');
+                                header('Location:login.php');
                             }
 
                            else
@@ -133,9 +118,10 @@ else
                 $message = 'We are unable to process your request. Please try again later"';
                 echo $e;
             }
-        }
+        }  
 
-        
-    
+//        else {
+     //           header('Location: login.php');
+      //       }        
 }
 ?>

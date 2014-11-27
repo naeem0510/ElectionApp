@@ -1,11 +1,21 @@
+<?php
+
+  $uid = $_SESSION['userid'];
+
+
+?>
+
 <html>
 <head>
     
-
-
-
 </head>
 <body>
+ <?php
+  $eid1 = 'UCD1';
+ $eid2 = 'UCD2';
+  $eid3 = 'UCD3';
+   $eid4 = 'UCD4';
+ ?>
 
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
@@ -27,7 +37,16 @@
         <li><a href="userhome.php">Home</a>
         <li><a href="nomination_form.php">Nomination</a></li>
         <li><a href="election.php">Election</a></li>
-        <li><a href="results.php">Results</a></li>   
+       
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Result <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href= "test_result.php?id='<?php echo $eid1;?>'">UCD1</a></li>
+            <li><a href="result.php?id='<?php echo $eid2;?>'">UCD2</a></li>
+            <li><a href="result.php?id='<?php echo $eid3;?>'">UCD3</a></li>
+            <li><a href="result.php?id='<?php echo $eid4;?>'">UCD4</a></li>
+          </ul>
+        </li>
 
       </ul>
 
@@ -38,7 +57,7 @@
    
       <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-       <img src="Assets/profile/2.jpg" style = "width:35px;height:35px;margin-right:10px;" > 
+       <img src="Assets/profile/<?php echo $uid;?>.jpg" style = "width:35px;height:35px;margin-right:10px;" > 
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">

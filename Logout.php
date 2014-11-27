@@ -10,7 +10,7 @@ if(isset($_SESSION['userid']))
 	session_destroy();
 	
         //then redirect to login page
-	header('Location:form.php');
+	header('Location:login.php');
 
 }//end log out
 

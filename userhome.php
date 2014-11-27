@@ -2,7 +2,6 @@
 
 /*** begin our session ***/
 session_start();
-$user = $_SESSION['userid'];
 
 /*** check if the users is already logged in ***/
 ?>
@@ -18,6 +17,15 @@ $user = $_SESSION['userid'];
 
 <script type="text/javascript" src="Assets/js/bootstrap.min.js"></script>
 
+<style type="text/css">
+	body {
+		
+		background-image: url("Assets/images/user1.jpg");
+		background-size: cover;     
+	   	background-attachment: fixed;
+		}
+	
+</style>
 
 </head>
 
@@ -26,14 +34,34 @@ $user = $_SESSION['userid'];
 <?php
 if(isset($_SESSION['userid']))
 {
+	$user = $_SESSION['userid'];
     $message = 'User is already logged in';
     include 'navbar_users.php';
-    include 'db_connect.php';  
+    include 'db_connect.php'; 
+
+    $query = $dbh->prepare("SELECT name,changed FROM users WHERE StudentID = '$user'");
+	$query->execute();
+	$res = $query->fetchAll();
+
+	foreach ($res as $value) {
+		$iname = $value['name'];
+		$change = $value['changed'];
+	}
+
+    if(!$change)
+	    {	
+	    	$query1 = $dbh->prepare("UPDATE users SET changed = '1' WHERE StudentID = '$user'");
+			$query1->execute();
+		    rename("Assets/profile/".$iname,"Assets/profile/".$user.".jpg");
+		}
 }
 
-else {
-	echo 'Oops! Please Login First';
-}
+else
+ {
+	$message = 'Oops! Please Login First';
+	$_SESSION['message'] = $message;
+	header('Location:login.php');
+	}
 ?>
 
 
@@ -43,6 +71,8 @@ else {
 </div>
 
 <?php include 'carousel.php';?>
+<blockquote style="display:block"> "If Oppurtunity doesn't knock, build the door" </blockquote>
+
 </body>
 </html>
 
